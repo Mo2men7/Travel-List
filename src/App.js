@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: true },
+  { id: 1, description: "Passports", quantity: 2, packed: false },
   { id: 2, description: "Shirts", quantity: 3, packed: false },
 ];
 
@@ -13,11 +13,22 @@ export default function App() {
   function handleDeleteItem(id) {
     setItems((items) => items.filter((item) => item.id !== id));
   }
+  function handleTogglItem(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : { ...item }
+      )
+    );
+  }
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItems} />
-      <PackingList items={items} onDeleteItem={handleDeleteItem} />
+      <PackingList
+        items={items}
+        onToggleItem={handleTogglItem}
+        onDeleteItem={handleDeleteItem}
+      />
       <Stats />
     </div>
   );
@@ -64,21 +75,31 @@ function Form({ onAddItems }) {
   );
 }
 
-function PackingList({ items, onDeleteItem }) {
+function PackingList({ items, onDeleteItem, onToggleItem }) {
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <Item item={item} key={item.id} deleteItem={onDeleteItem} />
+          <Item
+            item={item}
+            key={item.id}
+            toggleItem={onToggleItem}
+            deleteItem={onDeleteItem}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item, deleteItem }) {
+function Item({ item, deleteItem, toggleItem }) {
   return (
     <li>
+      <input
+        type="checkbox"
+        value={item.packed}
+        onChange={() => toggleItem(item.id)}
+      />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
